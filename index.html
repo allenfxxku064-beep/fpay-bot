@@ -1454,8 +1454,9 @@ function czTGD(){
     <div class="verdict" id="tgv" aria-live="polite">下注后掷骰</div><div class="hist-row" id="tgh"></div></div>
     ${betBoard(O)}
     <div class="cbtns"><button class="cbtn ghost" id="tgclr">清空</button><button class="cbtn" id="tggo">掷骰 🎲</button></div>
+    ${tgRealBtn('到聊天里掷真的 🎲（押大）')}
     <p class="fine">仿 Telegram 🎲 的单颗骰子，每局开 1–6 点。大小、单双 1 赔 ${+(bs-1).toFixed(2)}；押两个点数（1–2 或 5–6）1 赔 ${+(tw-1).toFixed(2)}；押中指定点数 1 赔 ${+(pt-1).toFixed(2)}。</p>`);
-  const st={m:{},locked:false};wireBets(st);
+  const st={m:{},locked:false};wireBets(st);$('#tgReal').onclick=()=>tgReal('dice','big');
   const paintH=()=>$('#tgh').innerHTML=S.tgH.slice(0,14).map(n=>`<span class="${n>=4?'g':''}">${n}</span>`).join('');paintH();
   $('#tgclr').onclick=()=>{if(!st.locked){st.m={};paintBets(st)}};
   $('#tggo').onclick=()=>{if(st.locked)return;if(!Object.keys(st.m).length){toast('先下注');return}st.locked=true;
@@ -1489,6 +1490,11 @@ $('#themeBtn').onclick=themeSheet;
 applyTheme(document.documentElement.dataset.theme);
 const CV=n=>getComputedStyle(document.documentElement).getPropertyValue(n).trim();
 
+function tgReal(game,opt){const c=document.querySelector('.chip-btn.sel');const bet=c?+c.dataset.chip:10;
+  const url='https://t.me/fpay_wallet_game_bot?start='+game+(opt?'_'+opt:'')+'_'+bet;
+  try{const tg=window.Telegram&&window.Telegram.WebApp;if(tg&&tg.openTelegramLink){tg.openTelegramLink(url);setTimeout(()=>{try{tg.close()}catch(e){}},300);return}}catch(e){}
+  window.open(url,'_blank')}
+const tgRealBtn=(label)=>`<button class="cbtn ghost" id="tgReal">${label}</button><p class="fine" style="margin-top:-4px">这一颗会在机器人聊天里由 Telegram 官方动画掷出，结果由 Telegram 决定（需要机器人 bot.py 正在运行，点数和小程序分开计算）。</p>`;
 /* ===== TG 表情游戏（仿 Telegram 🎯🏀⚽🎳🎰） ===== */
 const EMO_SYM=['BAR','🍇','🍋','7'];
 const EMO={
@@ -1514,8 +1520,10 @@ function emoStage(k){
 function czEmoji(k){const E=EMO[k];if(!S.emoH)S.emoH={};if(!S.emoH[k])S.emoH[k]=[];
   czShell(E.title,`<div class="felt"><div class="emo-stage emo-${k}" id="es">${emoStage(k)}</div><div class="verdict" id="ev" aria-live="polite">选筹码后出手</div><div class="hist-row" id="eh"></div></div>
     ${chipRow(0)}<button class="cbtn" id="ego">${{dart:'投镖',basket:'投篮',football:'射门',bowling:'出球',tgslot:'拉霸'}[k]}</button>
+    ${tgRealBtn('到聊天里掷真的 '+E.title.split(' ')[0])}
     <p class="fine">仿 Telegram ${E.title.split(' ')[0]} 动画表情，结果在 1–${E.n} 之间随机。${E.rule()}倍数含本金。</p>`);
   const chip=chipPick(10);let busy=false;const st=$('#es'),ball=()=>$('#eb');
+  $('#tgReal').onclick=()=>tgReal(k==='tgslot'?'slot':k);
   const paintH=()=>$('#eh').innerHTML=S.emoH[k].slice(0,12).map(x=>`<span class="${x.w?'g':''}">${x.t}</span>`).join('');paintH();
   const W=()=>st.clientWidth,H=()=>st.clientHeight,dur=RM()?60:1300;
   const fly=(el,pts,ms)=>new Promise(res=>{if(!el.animate){res();return}const a=el.animate(pts.map(([x,y,s])=>({transform:`translate(${x}px,${y}px) scale(${s||1})`})),{duration:RM()?30:ms,easing:'ease-in-out',fill:'forwards'});a.onfinish=res});

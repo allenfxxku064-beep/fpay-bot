@@ -231,6 +231,16 @@ def parse_bet(s: str | None) -> int | None:
 async def cmd_start(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
     u = update.effective_user
     info = user(u.id, u.full_name)
+    # 从小程序跳回来：/start dart_10、/start dice_big_10 → 直接掷一颗真的表情
+    if ctx.args:
+        parts = ctx.args[0].split("_")
+        if parts[0] in GAMES:
+            game = parts[0]
+            opt = parts[1] if game == "dice" and len(parts) > 2 else "-"
+            if game == "dice" and opt not in ("big", "small", "odd", "even", *list("123456")):
+                opt = "big"
+            bet = parse_bet(parts[-1] if len(parts) > 1 else None) or DEFAULT_BET
+            return await play(update, ctx, game, opt, bet)
     private = update.effective_chat.type == ChatType.PRIVATE
     await update.message.reply_text(
         f"欢迎来到 <b>F 娱乐场</b>，{u.first_name}！你现在有 <b>{info['points']}</b> 点。\n\n" + RULES,
