@@ -27,7 +27,7 @@ from telegram.ext import (Application, CallbackQueryHandler, CommandHandler,
 
 TOKEN = os.environ.get("BOT_TOKEN", "")
 WEBAPP_URL = os.environ.get("WEBAPP_URL", "https://allenfxxku064-beep.github.io/fpay-bot/")
-DB_PATH = os.environ.get("DB_PATH", "fpay_points.db")
+DB_PATH = os.environ.get("DB_PATH") or ("/data/fpay_points.db" if os.path.isdir("/data") else "fpay_points.db")
 TZ = ZoneInfo("Asia/Taipei")
 
 START_POINTS = 120      # 新用户初始点数
