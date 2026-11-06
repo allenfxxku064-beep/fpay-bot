@@ -25,7 +25,20 @@ from telegram.constants import ChatType, DiceEmoji
 from telegram.ext import (Application, CallbackQueryHandler, CommandHandler,
                           ContextTypes, MessageHandler, filters)
 
-TOKEN = os.environ.get("BOT_TOKEN", "")
+def _find_token() -> str:
+    """优先读 BOT_TOKEN；没有的话，自动找任何一个长得像 Telegram token 的环境变量。"""
+    import re
+    t = os.environ.get("BOT_TOKEN", "").strip()
+    if t:
+        return t
+    for v in os.environ.values():
+        v = v.strip()
+        if re.fullmatch(r"\d{6,12}:[A-Za-z0-9_-]{30,}", v):
+            return v
+    return ""
+
+
+TOKEN = _find_token()
 WEBAPP_URL = os.environ.get("WEBAPP_URL", "https://allenfxxku064-beep.github.io/fpay-bot/")
 DB_PATH = os.environ.get("DB_PATH") or ("/data/fpay_points.db" if os.path.isdir("/data") else "fpay_points.db")
 TZ = ZoneInfo("Asia/Taipei")
