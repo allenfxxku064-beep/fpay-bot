@@ -255,9 +255,17 @@ async def cmd_start(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
             bet = parse_bet(parts[-1] if len(parts) > 1 else None) or DEFAULT_BET
             return await play(update, ctx, game, opt, bet)
     private = update.effective_chat.type == ChatType.PRIVATE
-    await update.message.reply_text(
-        f"欢迎来到 <b>F 娱乐场</b>，{u.first_name}！你现在有 <b>{info['points']}</b> 点。\n\n" + RULES,
-        parse_mode="HTML", reply_markup=menu_kb(private))
+    welcome = (
+        f"🎃 欢迎来到 <b>F 娱乐场</b>，{u.first_name}！\n"
+        f"你现在有 <b>{info['points']}</b> 点（新玩家送 {START_POINTS} 点，全部点数玩法，无真钱）。\n\n"
+        "<b>🎮 三步开玩</b>\n"
+        "1️⃣ 打 /daily 每天领 500 点\n"
+        "2️⃣ 点下面的按钮，或打指令开局，例如 <code>/dice 大 10</code>\n"
+        "3️⃣ 由 <b>Telegram 官方</b>掷出表情，动画停下后自动结算\n\n"
+        "想玩牌桌、轮盘、捕鱼、幸运飞机等 26 款游戏，点「🎃 打开 F 娱乐场」。\n"
+        "──────────\n"
+    )
+    await update.message.reply_text(welcome + RULES, parse_mode="HTML", reply_markup=menu_kb(private))
 
 
 async def cmd_help(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
