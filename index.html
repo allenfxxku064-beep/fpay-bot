@@ -291,6 +291,15 @@ nav.tabs button[aria-current="page"]{color:var(--accent);font-weight:700}
 .g-dots i{width:8px;height:8px;border-radius:4px;background:var(--line);transition:width .2s}
 .g-dots i.on{background:var(--accent);width:22px}
 .guide-link{background:none;border:none;color:var(--accent);font:inherit;font-size:13px;text-decoration:underline;padding:4px 0;min-height:32px}
+.help h4{margin:6px 0 0;font-size:15px;color:var(--accent)}
+.help ol{margin:0;padding-left:20px;line-height:1.8;font-size:14px;color:var(--fg)}
+.help ol b{color:var(--accent)}
+.cmd-row{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center;padding:8px 10px;border:1px solid var(--line);border-radius:12px;background:var(--surface2)}
+.cmd-row code{font-family:var(--f-num);font-size:14px;color:var(--fg);font-weight:700}
+.cmd-row span{display:block;font-size:12px;color:var(--muted);margin-top:2px}
+.cmd-row button{min-height:36px;border-radius:10px;border:1px solid var(--accent);background:none;color:var(--accent);padding:0 12px;font-size:13px;white-space:nowrap}
+.help-btns{display:grid;grid-template-columns:1fr 1fr;gap:8px;width:100%}
+.help-btns button{min-height:42px;border-radius:12px;border:1px solid var(--line);background:var(--surface2);color:var(--fg);font:inherit;font-size:14px}
 /* ---- 管理后台 ---- */
 .adm-tabs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
 .adm-tabs button{min-height:40px;border-radius:10px;border:1px solid var(--cz-line);background:var(--cz-cell);color:var(--fg);font-size:13px}
@@ -479,7 +488,7 @@ function vGames(){
   const tasks=[['deposit','完成一次充值',1],['swap','完成一次闪兑',1],['card','开通 U卡',3]];
   return `${S.paused?'<p class="note">你已在「我的」暂停游戏功能，合作游戏入口已关闭；点数小游戏仍可使用。</p>':''}
   <section class="panel" style="background:var(--bg);border-color:var(--cz-line);color:var(--fg)"><h2 style="color:var(--accent)"><span class="cz-h"><svg class="hw-mini" viewBox="0 0 40 40" aria-hidden="true"><path d="M20 9c1-4 4-6 6-6" stroke="#5FA35A" stroke-width="3" fill="none" stroke-linecap="round"/><ellipse cx="12" cy="23" rx="9" ry="12" fill="#E8691A"/><ellipse cx="28" cy="23" rx="9" ry="12" fill="#E8691A"/><ellipse cx="20" cy="23" rx="10" ry="13" fill="#FF8A1F"/><path d="M13 19l4 3h-5zM27 19l-4 3h5z" fill="#1A0A00"/><path d="M12 28q8 6 16 0l-3 1-2-2-3 2-3-2-2 2z" fill="#1A0A00"/></svg>F 娱乐场</span> <small style="color:var(--cz-muted)">点数下注 · 不收 USDT</small></h2>
-    <button class="guide-link" id="guideGames">不会玩？看使用教学</button>
+    <div class="help-btns"><button id="guideGames">📖 新手教学</button><button id="helpGames">📋 指令大全</button></div>
     ${tilesHtml()}
     <div class="row" style="flex-wrap:wrap"><span style="font-size:12px;color:var(--cz-muted)">点数只能靠签到、任务、每日赠送获得，不能用 USDT 购买。</span>
       <button class="btn" id="dailyChips" style="min-height:40px;background:var(--accent);color:var(--accent-ink)" ${S.chipDay===S.day?'disabled':''}>${S.chipDay===S.day?'今日已领':'领今日 500 点数'}</button></div></section>
@@ -501,7 +510,7 @@ function vGames(){
     <p class="note">FPAY 只担保钱包订单的充值与提现；与商家私下交易不担保。单日充值上限 <span class="num">${fmt(S.limit)}</span> USDT，今日已用 <span class="num">${fmt(S.todayIn)}</span>。</p></section>
   <button class="btn ghost" id="nextDay">模拟进入下一天（演示用）</button>`}
 function bindGames(){
-  {const gl=$('#guideGames');if(gl)gl.onclick=()=>guide(0);}
+  {const gl=$('#guideGames');if(gl)gl.onclick=()=>guide(0);const hl=$('#helpGames');if(hl)hl.onclick=helpSheet;}
   const sb=$('#signBtn');if(sb)sb.onclick=()=>{const n=S.streak+1;const r=SIGN[n-1];S.signed[S.day]=true;S.streak=n>=7?0:n;S.points+=r.p;if(r.b)S.bonus+=r.b;save();render();toast('签到成功 +'+r.p+' 点数'+(r.b?'，送 '+r.b+' USDT 礼金':''))};
   $('#spinBtn').onclick=()=>{if(spinning)return;if(S.points<SPIN_COST){toast('点数不足，先去签到或做任务');return}
     S.points-=SPIN_COST;let r=Math.random()*100,i=0;for(;i<PRIZES.length;i++){r-=PRIZES[i].p;if(r<0)break}
@@ -639,7 +648,7 @@ function bindCard(){
 
 /* ---------- me ---------- */
 function vMe(){
-  return `<section class="panel"><h2>新手教学 <small>欢迎语与玩法说明</small></h2><button class="btn ghost" id="guideMe">再看一次使用教学</button></section>
+  return `<section class="panel"><h2>新手教学 <small>欢迎语与玩法说明</small></h2><div class="grid2"><button class="btn ghost" id="guideMe">新手教学</button><button class="btn ghost" id="helpMe">指令大全</button></div></section>
   <section class="panel"><h2>管理后台 <small>上架 / 下架、赔率、新增游戏</small></h2><button class="btn ghost" id="admBtn">进入管理后台</button></section>
   <section class="panel"><h2>外观风格 <small id="thmNow"></small></h2><button class="btn ghost" id="thmMe">切换风格（万圣节 / 圣诞节 / 过年 / 基本款）</button></section>
   <section class="panel"><h2>负责任游戏</h2>
@@ -649,7 +658,7 @@ function vMe(){
   <section class="panel"><h2>关于这个演示</h2><p style="margin:0;color:var(--muted);font-size:13px">礼金是平台赠送的 USDT，只能抵开卡费、U卡充值和提现手续费，不能直接提现。所有金额、卡号、商家均为模拟数据，只保存在你这台设备的浏览器里，不涉及真实资金。</p>
     <button class="btn ghost" id="reset">重置演示数据</button></section>`}
 function bindMe(){
-  $('#guideMe').onclick=()=>guide(0);
+  $('#guideMe').onclick=()=>guide(0);$('#helpMe').onclick=helpSheet;
   $('#admBtn').onclick=adminLogin;
   $('#thmMe').onclick=themeSheet;const tn=THEMES.find(x=>x.id===document.documentElement.dataset.theme);$('#thmNow').textContent=tn?'当前：'+tn.n:'';
   $('#lim').onchange=e=>{S.limit=+e.target.value;save();toast('单日上限已改为 '+fmt(S.limit)+' USDT')};
@@ -1568,7 +1577,7 @@ const GUIDE=[
   {t:'欢迎来到 F 娱乐场',d:'这里是 FPAY 的游戏中心：<b>26 款游戏</b>，有牌桌、骰子、转轮、捕鱼、幸运飞机、体育，还有 <b>Telegram 官方表情游戏</b>。<br>全部用<b>点数</b>玩，不涉及真钱，放心体验。'},
   {ico:'🎁',t:'第一步：领点数',d:'点底部「<b>游戏</b>」，按「<b>领今日 500 点数</b>」。<br>每天都能领一次；钱包页的签到、任务也能拿点数。'},
   {ico:'🎮',t:'第二步：开始玩',d:'① 在分类里点一款游戏<br>② 选筹码（10 / 50 / 100 / 500）<br>③ 点你要押的格子，可连点加注<br>④ 按「发牌 / 开骰 / 转动 / 起飞」开奖<br>每张牌桌下方都写着<b>规则和赔率</b>。'},
-  {ico:'🎲',t:'TG 官方表情游戏',d:'「<b>TG 表情游戏</b>」分类有 🎲🎯🏀⚽🎳🎰。<br>按「<b>到聊天里掷真的</b>」会回到机器人聊天，由 <b>Telegram 官方掷出、官方决定结果</b>。<br>聊天里也能直接打：<b>/dice 大 10</b>、<b>/slot 10</b>、<b>/games</b>（按钮菜单）、<b>/daily</b>（领点数）。'},
+  {ico:'🎲',t:'TG 官方表情游戏',d:'「<b>TG 表情游戏</b>」分类有 🎲🎯🏀⚽🎳🎰。<br>按「<b>到聊天里掷真的</b>」会回到机器人聊天，由 <b>Telegram 官方掷出、官方决定结果</b>。<br>聊天里也能直接打：<b>/dice 大 10</b>、<b>/slot 10</b>、<b>/games</b>（按钮菜单）、<b>/daily</b>（领点数）。<br>完整清单：游戏页上方「<b>📋 指令大全</b>」。'},
   {ico:'🎨',t:'小技巧',d:'右上角 <b>🎨</b> 可以换风格：万圣节 / 圣诞节 / 过年 / 基本款。<br>忘了怎么玩？到「<b>我的 → 新手教学</b>」随时再看一次。<br>祝你手气旺，发发发！'}];
 function guide(i=0){const g=GUIDE[i],last=i===GUIDE.length-1;
   const ico=g.ico||((THEMES.find(x=>x.id===document.documentElement.dataset.theme)||{}).ico)||'🎃';
@@ -1579,6 +1588,32 @@ function guide(i=0){const g=GUIDE[i],last=i===GUIDE.length-1;
     $('#gPrev').onclick=()=>i?guide(i-1):done();$('#gNext').onclick=()=>{if(last){done();setTab('games')}else guide(i+1)}})}
 function guideFirstTime(){let seen=false;try{seen=localStorage.getItem('fpay-guide-v1')==='1'}catch(e){}
   if(!seen&&!location.hash&&!document.querySelector('.cz'))guide(0)}
+
+/* ---------- 指令大全 + 点哪里玩 ---------- */
+const CMDS=[
+  ['/dice 大 10','🎲 骰子：押 大 / 小 / 单 / 双，押中 ×1.95','dice','big'],
+  ['/dice 6 10','🎲 骰子：押点数 1–6，押中 ×5.8','dice','6'],
+  ['/dart 10','🎯 飞镖：正中红心 ×4，靠近 ×1.7','dart',''],
+  ['/basket 10','🏀 篮球：投进 ×2.35','basket',''],
+  ['/football 10','⚽ 足球：进球 ×1.55','football',''],
+  ['/bowling 10','🎳 保龄球：全中 ×4，剩一瓶 ×1.7','bowling',''],
+  ['/slot 10','🎰 老虎机：777 ×20，三连 ×9，两个 7 ×1.5','slot',''],
+  ['/games','按钮菜单：不用打字，点一下就开局'],['/daily','每天领 500 点'],['/points','查自己的点数'],['/top','点数排行榜'],['/help','显示全部玩法说明']];
+function helpSheet(){
+  sheet(`<div class="help" style="display:flex;flex-direction:column;gap:10px"><h3>📋 玩法说明 · 指令大全</h3>
+    <h4>① 在小程序里玩（点这里）</h4>
+    <ol><li>点底部 <b>「游戏」</b></li><li>先按 <b>「领今日 500 点数」</b></li><li>往下滑，在分类里 <b>点一款游戏</b></li>
+      <li>选 <b>筹码</b>（10 / 50 / 100 / 500）</li><li>点要押的 <b>格子</b>（可连点加注）</li>
+      <li>按大按钮 <b>开奖</b>：发牌 / 开骰 / 转动 / 起飞 / 投篮…</li><li>右上角 <b>「关闭」</b> 回到游戏列表</li></ol>
+    <h4>② 在聊天里玩（Telegram 官方开奖）</h4>
+    <ol><li>关掉小程序，回到 <b>@fpay_wallet_game_bot</b> 聊天</li><li>在输入框 <b>打下面的指令</b> 再按发送；或打一个 <b>/</b> 会跳出指令清单可直接点</li>
+      <li>最后的数字是 <b>下注点数</b>，可以改，例如 /slot 50</li><li>机器人掷出官方表情，<b>动画停下自动结算</b>；回复下方有「再来一把」「加倍」按钮</li></ol>
+    ${CMDS.map(c=>`<div class="cmd-row"><div><code>${c[0]}</code><span>${c[1]}</span></div>${c[2]?`<button data-cmd="${c[2]}" data-opt="${c[3]}">去聊天玩</button>`:''}</div>`).join('')}
+    <h4>③ 其他</h4>
+    <ol><li><b>领点数</b>：游戏页「领今日 500 点数」；聊天打 /daily（小程序和聊天的点数分开算）</li>
+      <li><b>换风格</b>：右上角 🎨</li><li><b>再看教学</b>：我的 → 新手教学</li></ol>
+    <button class="btn ghost" data-close>知道了</button></div>`,()=>{
+    document.querySelectorAll('[data-cmd]').forEach(b=>b.onclick=()=>tgReal(b.dataset.cmd,b.dataset.opt))})}
 
 /* ---------- render ---------- */
 function render(){
